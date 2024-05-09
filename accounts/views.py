@@ -13,6 +13,7 @@ from .utils import is_email, is_driver, get_driver_profile_by_request
 @csrf_exempt
 def register(request):
     if request.method == 'POST':
+        print(request.POST)
         first_name = request.POST['fname']
         last_name = request.POST['lname']
         email = request.POST['gmail']
