@@ -18,22 +18,14 @@ def register(request):
         email = request.POST['gmail']
         password = request.POST['password']
         username = request.POST['username']
-        if is_email(email) is False:
-            messages.error(request, 'Wrong formatted email address.')
-            return redirect('register')
-        
- 
-        else: # validation passed
-            user = User.objects.create_user(
-                username=username, email=email, 
-                password=password, first_name=first_name, 
-                last_name=last_name
-            )
-            user.save()
-            messages.success(request, 'You are now registered and can login.')
-            return JsonResponse({'message': 'You are now registered and can login.', 'currentUser' : user.pk}, safe = False)
-    else:
-        return render(request, 'accounts/register.html')
+        user = User.objects.create_user(
+            username=username, email=email, 
+            password=password, first_name=first_name, 
+            last_name=last_name
+        )
+        user.save()
+        messages.success(request, 'You are now registered and can login.')
+        return JsonResponse({'message': 'You are now registered and can login.', 'currentUser' : user.pk}, safe = False)
 
 @csrf_exempt
 def login(request):
