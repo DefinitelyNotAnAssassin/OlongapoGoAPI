@@ -256,7 +256,36 @@ def getRides(request):
         is_driver = user.driverProfile.is_driver
         
         if is_driver: 
-            pass 
+            driverRides = Ride.objects.filter(driver=user).order_by('-id').values(
+                'id',
+                'owner__first_name',
+                'owner__last_name',
+                'driver__first_name',
+                'driver__last_name',
+                'destination',
+                'required_arrival_time',
+                'passenger_number_from_owner',
+                'passenger_number_in_total',
+                'ride_status',
+                'requested_vehicle_type',
+                'special_request',
+                
+            )
+            rideList = []
+            for ride in driverRides:
+                rideMap = {}
+                rideMap["id"] = ride["id"]
+                rideMap["owner_id"] = ride["owner__first_name"] + " " + ride["owner__last_name"]
+                rideMap["driver_id"] = ride["driver__first_name"] + " " + ride["driver__last_name"]
+                rideMap["destination"] = ride["destination"]
+                rideMap["required_arrival_time"] = ride["required_arrival_time"]
+                rideMap["passenger_number_from_owner"] = ride["passenger_number_from_owner"]
+                rideMap["passenger_number_in_total"] = ride["passenger_number_in_total"]
+                rideMap["ride_status"] = ride["ride_status"]
+                rideMap["requested_vehicle_type"] = ride["requested_vehicle_type"]
+                rideMap["special_request"] = ride["special_request"]
+                rideList.append(rideMap)
+            return JsonResponse({'driver_rides': rideList}, safe=False)
         elif not is_driver: 
             userRides = Ride.objects.filter(owner=user).order_by('-id').values('owner__first_name', 'owner__last_name', 'owner__username', 'destination', 'required_arrival_time', 'passenger_number_from_owner', 'passenger_number_in_total', 'ride_status', 'requested_vehicle_type', 'special_request', 'can_be_shared', 'sharers__first_name', 'sharers__last_name',  'id', 'driver_id', 'driver__first_name', 'driver__last_name', 'driver__username')
             return JsonResponse({'message': 'Login successful', 'user_id': user.id, 'first_name': user.first_name, 'last_name' : user.last_name, 'is_driver': is_driver, 'user_rides': list(userRides) }, safe = False)
