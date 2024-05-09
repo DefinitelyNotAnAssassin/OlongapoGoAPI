@@ -13,25 +13,16 @@ from .utils import is_email, is_driver, get_driver_profile_by_request
 @csrf_exempt
 def register(request):
     if request.method == 'POST':
-        first_name = request.POST['first_name']
-        last_name = request.POST['last_name']
-        username = request.POST['username']
-        email = request.POST['email']
+        first_name = request.POST['fname']
+        last_name = request.POST['lname']
+        email = request.POST['gmail']
         password = request.POST['password']
-        password2 = request.POST['password2']
-
+        username = request.POST['username']
         if is_email(email) is False:
             messages.error(request, 'Wrong formatted email address.')
             return redirect('register')
-        elif password != password2:
-            messages.error(request, 'Passwords mismatch.')
-            return redirect('register')
-        elif User.objects.filter(email=email).exists():
-            messages.error(request, 'Email is being used.')
-            return redirect('register')
-        elif User.objects.filter(username=username).exists():
-            messages.error(request, 'Username is already taken.')
-            return redirect('register')
+        
+ 
         else: # validation passed
             user = User.objects.create_user(
                 username=username, email=email, 
@@ -40,7 +31,7 @@ def register(request):
             )
             user.save()
             messages.success(request, 'You are now registered and can login.')
-            return redirect('login')
+            return JsonResponse({'message': 'You are now registered and can login.', 'currentUser' : user.pk}, safe = False)
     else:
         return render(request, 'accounts/register.html')
 
