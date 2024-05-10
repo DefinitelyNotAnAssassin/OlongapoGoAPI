@@ -323,7 +323,7 @@ def acceptRide(request):
         ride.save()
         return JsonResponse({'message': 'Ride accepted'}, safe=False)
     
-    
+@csrf_exempt
 def updateRideStatus(request): 
     if request.method == "POST": 
         data = request.POST
