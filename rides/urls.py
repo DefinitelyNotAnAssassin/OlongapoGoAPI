@@ -14,4 +14,5 @@ urlpatterns = [
     path('confirm/<int:ride_id>', views.confirm, name='confirm_ride'),
     path('complete/<int:ride_id>', views.complete, name='complete_ride'),
     path('acceptRide', views.acceptRide, name='acceptRide'),
+    path('updateRideStatus', views.updateRideStatus, name='updateRideStatus'), 
 ]
