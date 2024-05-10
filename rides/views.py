@@ -16,10 +16,8 @@ from .models import Ride
 @csrf_exempt
 def rides(request):
     """List all rides"""
-    if not request.user.is_authenticated:
-        return HttpResponse(status=401)
     
-    user = get_object_or_404(User, id=request.user.id)
+    user = get_object_or_404(User, id=request.POST['currentUser'])
     rides_as_owner = user.rides_as_owner.all().order_by(
         'id').filter(~Q(ride_status='complete'))
     rides_as_driver = user.rides_as_driver.all().order_by(
@@ -68,19 +66,40 @@ def search(request):
             return HttpResponse(status=404)
         if search_as == 'driver':
             
-            rides = Ride.objects.order_by('-id').filter(
+            driverRides = Ride.objects.order_by('-id').filter(
                 Q(ride_status='open'),
                
+            ).values(
+                'id',
+                'owner__first_name',
+                'owner__last_name',
+              
+                'destination',
+                'required_arrival_time',
+                'passenger_number_from_owner',
+                'passenger_number_in_total',
+                'ride_status',
+                'requested_vehicle_type',
+                'special_request',
+                
             )
+            rideList = []
+            for ride in driverRides:
+                rideMap = {}
+                rideMap["id"] = ride["id"]
+                rideMap["owner_id"] = ride["owner__first_name"] + " " + ride["owner__last_name"]
+                rideMap["destination"] = ride["destination"]
+                rideMap["required_arrival_time"] = ride["required_arrival_time"]
+                rideMap["passenger_number_from_owner"] = ride["passenger_number_from_owner"]
+                rideMap["passenger_number_in_total"] = ride["passenger_number_in_total"]
+                rideMap["ride_status"] = ride["ride_status"]
+                rideMap["requested_vehicle_type"] = ride["requested_vehicle_type"]
+                rideMap["special_request"] = ride["special_request"]
+                rideList.append(rideMap)
+            return JsonResponse({'driver_rides': rideList}, safe=False)
 
     
             
-            context = {
-                'rides': rides,
-                'search_as_driver': True,
-            }
-            return JsonResponse({'rides': list(rides.values())}, safe=False)
-        
         
           
 @csrf_exempt
@@ -290,3 +309,16 @@ def getRides(request):
             userRides = Ride.objects.filter(owner=user).order_by('-id').values('owner__first_name', 'owner__last_name', 'owner__username', 'destination', 'required_arrival_time', 'passenger_number_from_owner', 'passenger_number_in_total', 'ride_status', 'requested_vehicle_type', 'special_request', 'can_be_shared', 'sharers__first_name', 'sharers__last_name',  'id', 'driver_id', 'driver__first_name', 'driver__last_name', 'driver__username')
             return JsonResponse({'message': 'Login successful', 'user_id': user.id, 'first_name': user.first_name, 'last_name' : user.last_name, 'is_driver': is_driver, 'user_rides': list(userRides) }, safe = False)
 
+@csrf_exempt
+def acceptRide(request):
+    if request.method == "POST": 
+        data = request.POST
+        print(data)
+        currentUser = data.get('currentUser')
+        rideId = data.get('ride_id')
+        user = get_object_or_404(User, id=currentUser)
+        ride = get_object_or_404(Ride, id=rideId)
+        ride.driver = user
+        ride.ride_status = 'confirm'
+        ride.save()
+        return JsonResponse({'message': 'Ride accepted'}, safe=False)

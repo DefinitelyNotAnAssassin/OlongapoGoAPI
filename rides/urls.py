@@ -13,4 +13,5 @@ urlpatterns = [
     path('share/<int:ride_id>', views.share, name='share_ride'),
     path('confirm/<int:ride_id>', views.confirm, name='confirm_ride'),
     path('complete/<int:ride_id>', views.complete, name='complete_ride'),
+    path('acceptRide', views.acceptRide, name='acceptRide'),
 ]
