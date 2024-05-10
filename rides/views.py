@@ -322,3 +322,13 @@ def acceptRide(request):
         ride.ride_status = 'confirm'
         ride.save()
         return JsonResponse({'message': 'Ride accepted'}, safe=False)
+    
+    
+def updateRideStatus(request): 
+    if request.method == "POST": 
+        data = request.POST
+        rideId = data.get('ride_id')
+        ride = get_object_or_404(Ride, id=rideId)
+        ride.ride_status = "complete"
+        ride.save()
+        return JsonResponse({'message': 'Ride status updated'}, safe=False)
